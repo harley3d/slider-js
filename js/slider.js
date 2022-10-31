@@ -1,98 +1,119 @@
-let divSliderWrap = document.querySelector(".slider-wrap");
-let divSliderInner = document.querySelector(".slider-inner");
+const FRAME_SPEED = 30;
+const FRAME_TIME = 20;
 
-let divSlides = document.querySelectorAll(".slider-wrap .slide");
-let divSlidesLen = divSlides.length;
+const SLIDER_WIDTH = document.querySelector(".slider-wrap").offsetWidth;
 
-function createClone(index) {
-    let clone = divSlides[index].cloneNode(true);
-    clone.classList.remove("active");
+let sliderTrack = document.querySelector(".slider-track");
+
+let slides = document.querySelectorAll(".slider-wrap .slide");
+let slidesLen = slides.length;
+
+function createCloneTags(index) {
+    let clone = slides[index].cloneNode(true);
+    if (clone.classList.contains("active")) {
+        clone.classList.remove("active");
+    }    
     clone.classList.add("clone");
-    divSlidesLen++;
+    slidesLen++;
     return clone;
 }
 
-let divClone =  createClone(divSlidesLen-1);
-divClone.dataset.slideIndex = 0;
-divSliderInner.prepend(divClone);
+let slideClone =  createCloneTags(slidesLen-1);
+slideClone.dataset.slideIndex = 0;
+sliderTrack.prepend(slideClone);
 
-divClone =  createClone(0);
-divClone.dataset.slideIndex = divSlidesLen-1;
-divSliderInner.appendChild(divClone);
+slideClone =  createCloneTags(0);
+slideClone.dataset.slideIndex = slidesLen-1;
+sliderTrack.appendChild(slideClone);
 
-let divSliderInnerWith = divSliderWrap.offsetWidth * divSlidesLen;
-divSliderInner.style.width = divSliderInnerWith + 'px';
+const SLIDER_TRACK_WIDTH = SLIDER_WIDTH * slidesLen;
+sliderTrack.style.width = SLIDER_TRACK_WIDTH + 'px';
 
+function removeActiveClass(elems, clsName) {
+    for (let elem of elems) {
+        if (elem.classList.contains(clsName)) {
+            elem.classList.remove(clsName);
+        }
+    }
+}
 
+let items = document.querySelectorAll(".slider-nav-item");
+let activeItem = items[0].dataset.itemIndex
 
-let frame = -divSliderWrap.offsetWidth;
+let frame = -SLIDER_WIDTH;
+sliderTrack.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
 
-divSliderInner.style.transform = 'translate3d(-600px, 0px, 0px)';
+let currentSlide = 1;
 
-let prev = document.querySelector(".slider-prev");
-
-
-
-prev.addEventListener('click', function handler() {
-
-    if (frame >= -divSliderWrap.offsetWidth) {
-        frame = -divSliderInnerWith + divSliderWrap.offsetWidth;    
+function showAnimationPrev(btn, funcName) {
+    if (frame >= -SLIDER_WIDTH) {
+        frame = -SLIDER_TRACK_WIDTH + SLIDER_WIDTH;    
     }
     
-   
-    let stop = frame + divSliderWrap.offsetWidth;
+    let stop = frame + SLIDER_WIDTH;
     let animation = setInterval(function() {  
-        prev.removeEventListener('click', handler);
-        divSliderInner.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
+        btn.removeEventListener('click', funcName);
+        sliderTrack.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
         if (frame >= stop) {
             clearInterval(animation);
-            prev.addEventListener('click', handler);
+            btn.addEventListener('click', funcName);
             return;
         }   
-        frame += 15;
-    }, 20);
+        frame += FRAME_SPEED;
+    }, FRAME_TIME);
+}
+
+let prev = document.querySelector(".slider-prev");
+prev.addEventListener('click', function handler() {
+   
+    showAnimationPrev(prev, handler);
 
     let activeSlide = document.querySelector(".active");
     let nextSlideIndex = Number(activeSlide.dataset.slideIndex)-1;
 
+
+
     if (nextSlideIndex == 0) {
-        nextSlideIndex = divSlidesLen - 2;
+        nextSlideIndex = slidesLen - 2;
     }
 
     activeSlide.classList.remove("active");
     activeSlide = document.querySelector(`[data-slide-index="${nextSlideIndex}"]`);
     activeSlide.classList.add("active");
 
+    removeActiveClass(items, 'active-item');
+    items[nextSlideIndex-1].classList.add('active-item');  
+    currentSlide = nextSlideIndex;
+
 });
 
-
-let next = document.querySelector(".slider-next");
-next.addEventListener('click', function handler() {
-    if (frame <= -divSliderInnerWith + (2*divSliderWrap.offsetWidth)) {
+function showAnimationNext(btn, funcName) {
+    if (frame <= -SLIDER_TRACK_WIDTH + (2*SLIDER_WIDTH)) {
         frame = 0;
     }   
     
-    let stop = frame - divSliderWrap.offsetWidth;
+    let stop = frame - SLIDER_WIDTH;
     let animation = setInterval(function() { 
-        next.removeEventListener('click', handler); 
-        divSliderInner.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
+        btn.removeEventListener('click', funcName); 
+        sliderTrack.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
         if (frame <= stop) {
             clearInterval(animation);
-            next.addEventListener('click', handler);
+            btn.addEventListener('click', funcName);
             return;
         }   
-        frame -= 15;
-    }, 20);
+        frame -= FRAME_SPEED;
+    }, FRAME_TIME);
+}
 
+let next = document.querySelector(".slider-next");
+next.addEventListener('click', function handler() {
 
-
+    showAnimationNext(next, handler);
 
     let activeSlide = document.querySelector(".active");
     let nextSlideIndex = Number(activeSlide.dataset.slideIndex)+1;
 
-    transformValueX = (nextSlideIndex-1)*divSliderWrap.offsetWidth;  
-
-    if (nextSlideIndex == divSlidesLen-1) {
+    if (nextSlideIndex == slidesLen-1) {
         nextSlideIndex = 1;
     }
 
@@ -100,10 +121,38 @@ next.addEventListener('click', function handler() {
     activeSlide = document.querySelector(`[data-slide-index="${nextSlideIndex}"]`);
     activeSlide.classList.add("active");
 
-
+    removeActiveClass(items, 'active-item');
+    items[nextSlideIndex-1].classList.add('active-item');
+    currentSlide = nextSlideIndex;      
 });
 
 
+for (let item of items) {
+    item.addEventListener('click', function handler(){
+
+    removeActiveClass(items, 'active-item');
+    item.classList.add('active-item');    
+    let itemIndex = Number(item.dataset.itemIndex);
+          
+    frame = -SLIDER_WIDTH*(itemIndex)
+    sliderTrack.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
+
+    removeActiveClass(slides, 'active');
+    slides[itemIndex-1].classList.add('active');  
+
+    if (itemIndex >= currentSlide) {       
+        //currentSlide = itemIndex;
+        showAnimationNext(next, handler);
+        console.log(itemIndex > currentSlide, "->", itemIndex, currentSlide)
+    } else {       
+        //currentSlide = itemIndex; 
+        showAnimationPrev(prev, handler);
+        console.log(itemIndex > currentSlide, "<-", itemIndex, currentSlide)  
+    }
+
+
+    });
+}
 
 
 
