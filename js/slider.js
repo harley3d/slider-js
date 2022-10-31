@@ -8,6 +8,14 @@ let sliderTrack = document.querySelector(".slider-track");
 let slides = document.querySelectorAll(".slider-wrap .slide");
 let slidesLen = slides.length;
 
+let sliderNav = document.querySelector(".slider-nav");
+for(let i = 1; i <= slidesLen; i++) {
+    let active = (i == 1) ? 'active-item' : '';
+    sliderNav.innerHTML += `<li class="slider-nav-item ${active}" data-item-index="${i}"><button class="slider-nav-item-btn">${i}</button></li>`;   
+}
+
+let itemsLen = slides.length;
+
 function createCloneTags(index) {
     let clone = slides[index].cloneNode(true);
     if (clone.classList.contains("active")) {
@@ -85,7 +93,6 @@ prev.addEventListener('click', function handler() {
     removeActiveClass(items, 'active-item');
     items[nextSlideIndex-1].classList.add('active-item');  
     currentSlide = nextSlideIndex;
-    console.log("currentSlide",currentSlide);
 });
 
 function showAnimationNext(btn, funcName, stopFrame = '-') { 
@@ -125,7 +132,6 @@ next.addEventListener('click', function handler() {
     removeActiveClass(items, 'active-item');
     items[nextSlideIndex-1].classList.add('active-item');
     currentSlide = nextSlideIndex;   
-    console.log("currentSlide",currentSlide);
 });
 
 
