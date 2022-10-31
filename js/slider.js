@@ -45,12 +45,10 @@ sliderTrack.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
 
 let currentSlide = 1;
 
-function showAnimationPrev(btn, funcName) {
-    if (frame >= -SLIDER_WIDTH) {
-        frame = -SLIDER_TRACK_WIDTH + SLIDER_WIDTH;    
-    }
+function showAnimationPrev(btn, funcName, stopFrame='-') {
     
-    let stop = frame + SLIDER_WIDTH;
+
+    let stop = (stopFrame == '-') ? frame + SLIDER_WIDTH : stopFrame;
     let animation = setInterval(function() {  
         btn.removeEventListener('click', funcName);
         sliderTrack.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
@@ -65,7 +63,10 @@ function showAnimationPrev(btn, funcName) {
 
 let prev = document.querySelector(".slider-prev");
 prev.addEventListener('click', function handler() {
-   
+    if (frame >= -SLIDER_WIDTH) {
+        frame = -SLIDER_TRACK_WIDTH + SLIDER_WIDTH;    
+    }
+
     showAnimationPrev(prev, handler);
 
     let activeSlide = document.querySelector(".active");
@@ -84,15 +85,12 @@ prev.addEventListener('click', function handler() {
     removeActiveClass(items, 'active-item');
     items[nextSlideIndex-1].classList.add('active-item');  
     currentSlide = nextSlideIndex;
-
+    console.log("currentSlide",currentSlide);
 });
 
-function showAnimationNext(btn, funcName) {
-    if (frame <= -SLIDER_TRACK_WIDTH + (2*SLIDER_WIDTH)) {
-        frame = 0;
-    }   
+function showAnimationNext(btn, funcName, stopFrame = '-') { 
     
-    let stop = frame - SLIDER_WIDTH;
+    let stop = (stopFrame == '-') ? frame - SLIDER_WIDTH : stopFrame;
     let animation = setInterval(function() { 
         btn.removeEventListener('click', funcName); 
         sliderTrack.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
@@ -107,6 +105,9 @@ function showAnimationNext(btn, funcName) {
 
 let next = document.querySelector(".slider-next");
 next.addEventListener('click', function handler() {
+    if (frame <= -SLIDER_TRACK_WIDTH + (2*SLIDER_WIDTH)) {
+        frame = 0;
+    }  
 
     showAnimationNext(next, handler);
 
@@ -123,7 +124,8 @@ next.addEventListener('click', function handler() {
 
     removeActiveClass(items, 'active-item');
     items[nextSlideIndex-1].classList.add('active-item');
-    currentSlide = nextSlideIndex;      
+    currentSlide = nextSlideIndex;   
+    console.log("currentSlide",currentSlide);
 });
 
 
@@ -134,20 +136,20 @@ for (let item of items) {
     item.classList.add('active-item');    
     let itemIndex = Number(item.dataset.itemIndex);
           
-    frame = -SLIDER_WIDTH*(itemIndex)
-    sliderTrack.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
+    frame = -SLIDER_WIDTH*currentSlide;
 
     removeActiveClass(slides, 'active');
     slides[itemIndex-1].classList.add('active');  
 
     if (itemIndex >= currentSlide) {       
-        //currentSlide = itemIndex;
-        showAnimationNext(next, handler);
-        console.log(itemIndex > currentSlide, "->", itemIndex, currentSlide)
+        currentSlide = itemIndex;
+        let stop = -SLIDER_WIDTH*itemIndex;
+        showAnimationNext(item, handler, stop);
+
     } else {       
-        //currentSlide = itemIndex; 
-        showAnimationPrev(prev, handler);
-        console.log(itemIndex > currentSlide, "<-", itemIndex, currentSlide)  
+        currentSlide = itemIndex; 
+        let stop = -SLIDER_WIDTH*itemIndex;
+        showAnimationPrev(item, handler, stop);
     }
 
 
