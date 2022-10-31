@@ -1,143 +1,109 @@
-let sliderWrap = document.querySelector(".slider-wrap");
-let sliderInner = document.querySelector(".slider-inner");
-let slides = document.querySelectorAll(".slider-wrap .slide");
+let divSliderWrap = document.querySelector(".slider-wrap");
+let divSliderInner = document.querySelector(".slider-inner");
 
-let slidesLen = slides.length;
+let divSlides = document.querySelectorAll(".slider-wrap .slide");
+let divSlidesLen = divSlides.length;
 
 function createClone(index) {
-    let clone = slides[index].cloneNode(true);
+    let clone = divSlides[index].cloneNode(true);
     clone.classList.remove("active");
     clone.classList.add("clone");
-    slidesLen++;
+    divSlidesLen++;
     return clone;
 }
 
-// let clone =  createClone(slidesLen-1);
-// clone.dataset.slideIndex = 0;
-// sliderInner.prepend(clone);
+let divClone =  createClone(divSlidesLen-1);
+divClone.dataset.slideIndex = 0;
+divSliderInner.prepend(divClone);
 
-clone =  createClone(0);
-clone.dataset.slideIndex = slidesLen-1;
-sliderInner.appendChild(clone);
+divClone =  createClone(0);
+divClone.dataset.slideIndex = divSlidesLen-1;
+divSliderInner.appendChild(divClone);
 
-// sliderInner.style.transform = 'translate3d(-' + sliderWrap.offsetWidth + 'px, 0px, 0px)';
-
-console.log(slidesLen);
-
-let sliderInnerWith = sliderWrap.offsetWidth * slidesLen + 'px';
-sliderInner.style.width = sliderInnerWith;
+let divSliderInnerWith = divSliderWrap.offsetWidth * divSlidesLen;
+divSliderInner.style.width = divSliderInnerWith + 'px';
 
 
 
-let transformValueX = 0;
-let frame = 0;
+let frame = -divSliderWrap.offsetWidth;
+
+divSliderInner.style.transform = 'translate3d(-600px, 0px, 0px)';
 
 let prev = document.querySelector(".slider-prev");
-let next = document.querySelector(".slider-next");
 
 
-prev.addEventListener('click', function() {
+
+prev.addEventListener('click', function handler() {
+
+    if (frame >= -divSliderWrap.offsetWidth) {
+        frame = -divSliderInnerWith + divSliderWrap.offsetWidth;    
+    }
     
+   
+    let stop = frame + divSliderWrap.offsetWidth;
+    let animation = setInterval(function() {  
+        prev.removeEventListener('click', handler);
+        divSliderInner.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
+        if (frame >= stop) {
+            clearInterval(animation);
+            prev.addEventListener('click', handler);
+            return;
+        }   
+        frame += 15;
+    }, 20);
+
     let activeSlide = document.querySelector(".active");
-    let nextSlideIndex = Number(activeSlide.dataset.slideIndex)+1;
+    let nextSlideIndex = Number(activeSlide.dataset.slideIndex)-1;
 
-    transformValueX = (nextSlideIndex-1)*sliderWrap.offsetWidth;  
-
-    if (nextSlideIndex == slidesLen) {
-        nextSlideIndex = 1;
-
-
+    if (nextSlideIndex == 0) {
+        nextSlideIndex = divSlidesLen - 2;
     }
 
     activeSlide.classList.remove("active");
     activeSlide = document.querySelector(`[data-slide-index="${nextSlideIndex}"]`);
     activeSlide.classList.add("active");
-       
-    let animation = setInterval(function() {  
-        sliderInner.style.transform = 'translate3d(-' + frame + 'px, 0px, 0px)';
-        if (frame >= transformValueX) {
+
+});
+
+
+let next = document.querySelector(".slider-next");
+next.addEventListener('click', function handler() {
+    if (frame <= -divSliderInnerWith + (2*divSliderWrap.offsetWidth)) {
+        frame = 0;
+    }   
+    
+    let stop = frame - divSliderWrap.offsetWidth;
+    let animation = setInterval(function() { 
+        next.removeEventListener('click', handler); 
+        divSliderInner.style.transform = 'translate3d(' + frame + 'px, 0px, 0px)';
+        if (frame <= stop) {
             clearInterval(animation);
+            next.addEventListener('click', handler);
             return;
-        }
-        frame += 15;
+        }   
+        frame -= 15;
     }, 20);
 
-    if (frame == sliderWrap.offsetWidth * (slidesLen-1)) {
-        frame = 0;
+
+
+
+    let activeSlide = document.querySelector(".active");
+    let nextSlideIndex = Number(activeSlide.dataset.slideIndex)+1;
+
+    transformValueX = (nextSlideIndex-1)*divSliderWrap.offsetWidth;  
+
+    if (nextSlideIndex == divSlidesLen-1) {
+        nextSlideIndex = 1;
     }
+
+    activeSlide.classList.remove("active");
+    activeSlide = document.querySelector(`[data-slide-index="${nextSlideIndex}"]`);
+    activeSlide.classList.add("active");
+
 
 });
 
 
 
-///-------------------------------------------------------------------------
-
-// let sliderWrap = document.querySelector(".slider-wrap");
-// let sliderInner = document.querySelector(".slider-inner");
-// let slides = document.querySelectorAll(".slider-wrap .slide");
-
-// let slidesLen = slides.length;
-
-// function createClone(index) {
-//     let clone = slides[index].cloneNode(true);
-//     clone.classList.remove("active");
-//     clone.classList.add("clone");
-//     slidesLen++;
-//     return clone;
-// }
-
-// let clone =  createClone(slidesLen-1);
-// clone.dataset.slideIndex = 0;
-// sliderInner.prepend(clone);
-
-// clone =  createClone(0);
-// clone.dataset.slideIndex = slidesLen-1;
-// sliderInner.appendChild(clone);
-
-// sliderInner.style.transform = 'translate3d(-' + sliderWrap.offsetWidth + 'px, 0px, 0px)';
-
-// console.log(slidesLen);
-
-// let sliderInnerWith = sliderWrap.offsetWidth * slidesLen + 'px';
-// sliderInner.style.width = sliderInnerWith;
 
 
-
-// let transformValueX = 0;
-// let frame = 0;
-
-// let prev = document.querySelector(".slider-prev");
-// let next = document.querySelector(".slider-next");
-
-
-// prev.addEventListener('click', function() {
-    
-//     let activeSlide = document.querySelector(".active");
-//     let nextSlideIndex = Number(activeSlide.dataset.slideIndex)+1;
-
-//     transformValueX = (nextSlideIndex-1)*sliderWrap.offsetWidth;  
-
-//     if (nextSlideIndex == slidesLen) {
-//         nextSlideIndex = 1;
-
-
-//     }
-
-//     activeSlide.classList.remove("active");
-//     activeSlide = document.querySelector(`[data-slide-index="${nextSlideIndex}"]`);
-//     activeSlide.classList.add("active");
-       
-//     let animation = setInterval(function() {  
-//         sliderInner.style.transform = 'translate3d(-' + frame + 'px, 0px, 0px)';
-//         if (frame >= transformValueX) {
-//             clearInterval(animation);
-//             return;
-//         }
-//         frame += 15;
-//     }, 20);
-
-//     if (frame == sliderWrap.offsetWidth * (slidesLen-1)) {
-//         frame = 0;
-//     }
-
-// });
